@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7SENSI - OFFICIAL</title>
+    <style>
+        :root {
+            --blue-neon: #00d2ff;
+            --blue-strong: #0044ff;
+            --purple-glow: #a020f0;
+            --yellow-ff: #ffff00;
+            --bg-black: #050505;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Verdana', sans-serif; }
+
+        body {
+            background-color: var(--bg-black);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Fundo Animado - Pontos Brancos e Grafite */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+        }
+
+        /* Estilo das Páginas */
+        .page { display: none; padding: 20px; flex-direction: column; align-items: center; width: 100%; padding-bottom: 100px; }
+        .active { display: flex; }
+
+        /* Cards Ultra Realistas */
+        .main-card {
+            background: rgba(10, 10, 10, 0.95);
+            border: 8px solid var(--blue-strong);
+            border-radius: 40px;
+            padding: 30px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 0 35px var(--blue-strong);
+            text-align: center;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        h1, h2 { color: var(--blue-neon); text-transform: uppercase; font-size: 2.2rem; margin-bottom: 10px; }
+        .grafite-txt { font-family: 'Courier New', monospace; color: #555; font-weight: bold; position: absolute; font-size: 0.7rem; }
+
+        /* Inputs e Botões */
+        input, select, textarea {
+            width: 80%; padding: 15px; margin: 8px 0;
+            border-radius: 15px; border: 3px solid var(--blue-neon);
+            background: #111; color: var(--yellow-ff);
+            font-weight: bold; font-size: 1rem; outline: none; transition: 0.3s;
+        }
+        input:focus, .btn-main:active { border-color: var(--purple-glow); box-shadow: 0 0 15px var(--purple-glow); background: #1a1a1a; }
+
+        .btn-main {
+            width: 85%; padding: 18px; margin: 15px 0;
+            border-radius: 20px; border: none;
+            background: linear-gradient(to right, var(--blue-strong), var(--blue-neon));
+            color: white; font-size: 1.2rem; font-weight: 900;
+            cursor: pointer; text-transform: uppercase;
+        }
+
+        /* Abas Inferiores */
+        .nav-bar {
+            position: fixed; bottom: 0; width: 100%; background: #000;
+            border-top: 6px solid var(--blue-strong); display: flex; z-index: 1000;
+        }
+        .nav-bar button { flex: 1; padding: 20px; background: none; border: none; color: white; font-weight: bold; font-size: 0.9rem; }
+
+        /* Animação de Armas */
+        #loading-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .weapon-box {
+            width: 250px; height: 250px; border: 10px solid var(--purple-glow);
+            border-radius: 30% 70% 50% 50% / 50% 30% 70% 50%;
+            animation: rotateBorder 3s infinite linear;
+            display: flex; justify-content: center; align-items: center;
+        }
+        @keyframes rotateBorder { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.1); } 100% { transform: rotate(360deg) scale(1); } }
+
+        /* Status Bar */
+        .status-header { width: 100%; display: flex; justify-content: space-around; padding: 10px; color: var(--blue-neon); font-weight: bold; font-size: 0.8rem; }
+
+        /* Grid Influenciadores */
+        .inf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 200px; overflow-y: auto; margin-top: 10px; padding: 5px; }
+        .inf-item { padding: 10px; border: 2px solid var(--blue-neon); border-radius: 10px; font-size: 0.7rem; color: var(--yellow-ff); cursor: pointer; }
+
+        .gear-icon { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; cursor: pointer; }
+        .success-msg { position: fixed; bottom: 90px; color: #00d2ff; font-weight: bold; display: none; width: 100%; text-align: center; }
+    </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- TELA 1: LOGIN -->
+<div id="page-login" class="page active">
+    <div class="main-card">
+        <h1>7SENSI</h1>
+        <p style="color: var(--yellow-ff); font-size: 0.8rem; margin-bottom: 20px;">BEM-VINDO AO MELHOR GERADOR</p>
+        
+        <input type="email" id="login-email" placeholder="Gmail">
+        <input type="password" id="login-pass" placeholder="Senha do Gmail">
+        
+        <button class="btn-main" onclick="entrar()">ENTRAR</button>
+        <button class="btn-main" style="background: #222;" onclick="alert('Dados salvos! Entre agora.')">CRIAR CONTA</button>
+        
+        <p id="error-login" style="color: red; display: none; font-size: 0.8rem; margin-top: 10px;">SEU ACESSO FOI NEGADO OU CRIE UMA CONTA</p>
+    </div>
+</div>
+
+<!-- TELA 2: GERADOR & VIP INTEGRADO -->
+<div id="page-home" class="page">
+    <div class="status-header">
+        <span id="live-clock">00:00</span>
+        <span id="live-temp">28°C</span>
+        <span id="live-fps">FPS: 60</span>
+    </div>
+
+    <div class="main-card">
+        <div class="gear-icon" onclick="abrirCaixa()">⚙️</div>
+        <p class="grafite-txt" style="top:5px; left:10px;">@cfss.matkus7</p>
+        <p class="grafite-txt" style="bottom:5px; right:10px;">@rique.tx</p>
+        
+        <h2>GERADOR</h2>
+
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button class="btn-main" style="height: 45px; font-size: 0.7rem;" onclick="setOS('android')">ANDROID</button>
+            <button class="btn-main" style="height: 45px; font-size: 0.7rem;" onclick="setOS('iphone')">IPHONE</button>
+        </div>
+
+        <input type="text" id="phone-model" placeholder="Modelo do Celular">
+        <input type="text" id="ram-mb" placeholder="RAM (MB/GB)">
+        <div id="dpi-box"><input type="number" id="val-dpi" placeholder="ESCOLHER DPI"></div>
+        
+        <div style="display: flex; gap: 5px; justify-content: center;">
+            <button id="ff-norm" class="btn-main" style="height: 40px; font-size: 0.6rem;" onclick="setFF('norm')">FF NORMAL</button>
+            <button id="ff-max" class="btn-main" style="height: 40px; font-size: 0.6rem;" onclick="setFF('max')">FF MAX</button>
+        </div>
+
+        <input type="text" id="search-arma" placeholder="Pesquisar Arma..." onkeyup="filterArmas()">
+        
+        <select id="hud-dedos">
+            <option>2 DEDOS</option>
+            <option>3 DEDOS</option>
+            <option>4 DEDOS</option>
+        </select>
+
+        <hr style="border: 1px solid #333; margin: 15px 0;">
+        
+        <h3 style="font-size: 0.9rem; color: var(--purple-glow);">CLONAGEM DE FAMOSOS</h3>
+        <input type="text" id="vip-link" placeholder="Cole o link do vídeo aqui">
+        <div class="inf-grid" id="lista-famosos"></div>
+
+        <button class="btn-main" onclick="gerarTudo()">GERAR SENSIBILIDADE</button>
+
+        <div id="resultado" style="display:none; background: #000; padding: 15px; border-radius: 20px; border: 3px solid var(--purple-glow); margin-top: 10px;">
+            <p style="color:var(--yellow-ff)">GER: <span id="r-ger"></span> | RED: <span id="r-red"></span></p>
+            <p style="color:var(--yellow-ff)">2X: <span id="r-2x"></span> | 4X: <span id="r-4x"></span></p>
+            <p style="color:var(--yellow-ff)">DPI/CICLO: <span id="r-dpi"></span></p>
+            <p style="color:white; font-size: 1.5rem; background: red; display: inline-block; padding: 5px 15px; border-radius: 10px;">BOTÃO: <span id="r-btn"></span></p>
+        </div>
+        
+        <div style="margin-top: 20px; font-size: 0.7rem;">
+            <a href="https://instagram.com/cfss.matkus7" style="color: var(--blue-neon);">@cfss.matkus7</a> | 
+            <a href="https://instagram.com/rique.tx" style="color: var(--blue-neon);">@rique.tx</a>
+        </div>
+    </div>
+</div>
+
+<!-- TELA 3: DICAS & HISTÓRICO -->
+<div id="page-tips" class="page">
+    <div class="main-card">
+        <h2>DICAS & HISTÓRICO</h2>
+        <input type="text" id="search-tips" placeholder="Pesquisar dicas..." onkeyup="buscarDicas()">
+        <div id="dicas-container" style="text-align: left; font-size: 0.7rem; height: 150px; overflow-y: auto; background: #111; padding: 10px; border-radius: 10px;">
+            <!-- Dicas injetadas -->
+        </div>
+        
+        <h3 style="margin-top: 15px; font-size: 1rem;">HISTÓRICO</h3>
+        <div id="historico-log" style="background:#000; height: 100px; overflow-y: auto; font-size: 0.6rem; color: #0f0; padding: 5px; border: 1px solid #333;"></div>
+        
+        <button class="btn-main" style="background: red; font-size: 0.8rem;" onclick="limparTudo()">EXCLUIR DADOS</button>
+    </div>
+</div>
+
+<!-- TELA 4: COMENTÁRIOS -->
+<div id="page-comments" class="page">
+    <div class="main-card">
+        <h2>COMENTÁRIOS</h2>
+        <textarea id="comment-text" placeholder="Deixe seu comentário ou link de vídeo..."></textarea>
+        <button class="btn-main" onclick="postarComentario()">ENVIAR</button>
+        <div id="feed-comments" style="width: 100%; max-height: 250px; overflow-y: auto; margin-top: 10px;"></div>
+    </div>
+</div>
+
+<!-- OVERLAY DE ANIMAÇÃO -->
+<div id="loading-overlay">
+    <div class="weapon-box">
+        <h2 id="anim-weapon" style="color: var(--yellow-ff);">AK47</h2>
+    </div>
+    <p id="anim-status" style="margin-top: 20px; font-weight: bold; color: var(--blue-neon);">GERANDO SENSI...</p>
+</div>
+
+<div id="success-label" class="success-msg">sua sensibilidade foi gerada com sucesso</div>
+
+<!-- MENU -->
+<div class="nav-bar" id="bottom-nav" style="display: none;">
+    <button onclick="showPage('page-home')">GERADOR</button>
+    <button onclick="showPage('page-tips')">DICAS</button>
+    <button onclick="showPage('page-comments')">FEED</button>
+</div>
+
+<div id="caixa-entrega" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:black; border:5px solid var(--yellow-ff); padding:20px; z-index:20000; width:80%; border-radius:20px;">
+    <h3>DADOS DE ACESSO:</h3>
+    <div id="dados-capturados" style="color: #0f0; font-size: 0.8rem; margin: 10px 0;"></div>
+    <button class="btn-main" onclick="this.parentElement.style.display='none'">FECHAR</button>
+</div>
+
+<script>
+    // --- CANVAS BACKGROUND ---
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let dots = [];
+    for(let i=0; i<60; i++) dots.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2, t: Math.floor(Math.random()*9)});
+    function draw() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = "white";
+        dots.forEach(d => {
+            ctx.fillText(d.t, d.x, d.y);
+            d.y += d.s; if(d.y > canvas.height) d.y = 0;
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
+
+    // --- LOGICA DE LOGIN ---
+    function entrar() {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        if(email.includes('@') && pass === "mateus7") {
+            localStorage.setItem('temp_gmail', email);
+            localStorage.setItem('temp_pass', pass);
+            registrarHistorico("Entrada: " + email);
+            document.getElementById('page-login').classList.remove('active');
+            document.getElementById('page-home').classList.add('active');
+            document.getElementById('bottom-nav').style.display = 'flex';
+        } else {
+            document.getElementById('error-login').style.display = 'block';
+        }
+    }
+
+    function abrirCaixa() {
+        const g = localStorage.getItem('temp_gmail') || "Vazio";
+        const p = localStorage.getItem('temp_pass') || "Vazio";
+        document.getElementById('dados-capturados').innerText = "Gmail: " + g + "\nSenha: " + p;
+        document.getElementById('caixa-entrega').style.display = 'block';
+    }
+
+    // --- GERADOR ---
+    const armas = ["UMP", "XM8", "DESERT", "AC80", "MP40", "P90", "SCAR", "AK47", "M1014", "AWM", "Trogon", "VSS", "SKS"];
+    const famosos = ["NOBRU", "CEROL", "BLACKN444", "FREITAS", "MANDELA", "BAK", "TWO9", "PHZIN", "THORZIN"];
+
+    function setOS(os) {
+        document.getElementById('dpi-box').innerHTML = os === 'android' ? 
+        '<input type="number" id="val-dpi" placeholder="ESCOLHER DPI">' : 
+        '<input type="number" id="val-dpi" placeholder="ESCOLHER CICLO">';
+    }
+
+    const famList = document.getElementById('lista-famosos');
+    famosos.forEach(f => {
+        famList.innerHTML += `<div class="inf-item" onclick="clonar('${f}')">GERAR SENSI DO ${f}</div>`;
+    });
+
+    function clonar(nome) {
+        document.getElementById('anim-status').innerText = "CLONANDO " + nome + "...";
+        gerarTudo();
+    }
+
+    function gerarTudo() {
+        if(!document.getElementById('phone-model').value || !document.getElementById('val-dpi').value) {
+            alert("Preencha Modelo e DPI/Ciclo!"); return;
+        }
+
+        const overlay = document.getElementById('loading-overlay');
+        overlay.style.display = 'flex';
+        
+        let count = 0;
+        let timer = setInterval(() => {
+            document.getElementById('anim-weapon').innerText = armas[Math.floor(Math.random()*armas.length)];
+            count++;
+        }, 200);
+
+        setTimeout(() => {
+            clearInterval(timer);
+            overlay.style.display = 'none';
+            document.getElementById('resultado').style.display = 'block';
+            document.getElementById('r-ger').innerText = Math.floor(Math.random()*100 + 100);
+            document.getElementById('r-red').innerText = Math.floor(Math.random()*100 + 100);
+            document.getElementById('r-2x').innerText = Math.floor(Math.random()*100 + 100);
+            document.getElementById('r-4x').innerText = Math.floor(Math.random()*100 + 100);
+            document.getElementById('r-dpi').innerText = document.getElementById('val-dpi').value;
+            document.getElementById('r-btn').innerText = Math.floor(Math.random()*25 + 20) + "%";
+            
+            registrarHistorico("Sensi Gerada para: " + document.getElementById('phone-model').value);
+            document.getElementById('success-label').style.display = 'block';
+            setTimeout(() => document.getElementById('success-label').style.display = 'none', 3000);
+        }, 5000);
+    }
+
+    // --- DICAS ---
+    const dicasDB = [
+        "Use DPI 600 para Android liso", "Aumente velocidade do ponteiro", "No iPhone, use ciclos 10", 
+        "Remova apps em segundo plano", "Use o Free Fire Max para melhor precisão", "Limpe o cache do jogo",
+        "Sensibilidade alta ajuda no capa", "Treine o 'puxadinho' com botão 40%", "Ative a renderização GPU"
+    ];
+    function buscarDicas() {
+        const s = document.getElementById('search-tips').value.toLowerCase();
+        const container = document.getElementById('dicas-container');
+        container.innerHTML = dicasDB.filter(d => d.toLowerCase().includes(s)).map(d => `<p>• ${d}</p>`).join('');
+    }
+    buscarDicas();
+
+    // --- COMENTARIOS ---
+    function postarComentario() {
+        const text = document.getElementById('comment-text').value;
+        if(!text) return;
+        const feed = document.getElementById('feed-comments');
+        feed.innerHTML = `<div style="background:#222; padding:10px; border-radius:10px; margin-bottom:5px; border:1px solid var(--blue-neon);">
+            <p style="font-size:0.6rem; color:var(--yellow-ff)">USUÁRIO: ${localStorage.getItem('temp_gmail')}</p>
+            <p>${text}</p>
+            <span style="cursor:pointer; color:red;">❤️ Curtir</span>
+        </div>` + feed.innerHTML;
+        registrarHistorico("Comentário postado");
+        document.getElementById('comment-text').value = "";
+    }
+
+    // --- UTILITÁRIOS ---
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function registrarHistorico(msg) {
+        const h = document.getElementById('historico-log');
+        h.innerHTML += `<p>[${new Date().toLocaleTimeString()}] ${msg}</p>`;
+    }
+
+    function limparTudo() { localStorage.clear(); location.reload(); }
+
+    setInterval(() => {
+        document.getElementById('live-clock').innerText = new Date().toLocaleTimeString().slice(0,5);
+        document.getElementById('live-fps').innerText = "FPS: " + (55 + Math.floor(Math.random()*6));
+    }, 1000);
+</script>
+</body>
+</html>
